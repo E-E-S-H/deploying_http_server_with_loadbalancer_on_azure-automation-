@@ -1,0 +1,12 @@
+---
+- name: Append lines to /etc/profile
+  ansible.builtin.lineinfile:
+    path: /etc/profile
+    line: "{{ item }}"
+    create: true
+    state: present
+    insertafter: EOF
+  loop:
+    - "#Test block added by Ansible......Eesh Kumar"
+    - "export TMOUT=1500"
+  become: yes # Required to write to /etc/profile

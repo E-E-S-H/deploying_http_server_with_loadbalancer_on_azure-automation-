@@ -1,0 +1,15 @@
+---
+- name: Add cloudadmins group
+  ansible.builtin.group:
+    name: cloudadmins
+    state: present
+  become: yes
+
+- name: Add user accounts
+  ansible.builtin.user:
+    name: "{{ item }}"
+    state: present
+    groups: "cloudadmins,sudo"
+    append: yes
+  loop: "{{ users_to_create }}"
+  become: yes

@@ -1,0 +1,36 @@
+---
+- name: Install Apache web server
+  ansible.builtin.apt:
+    name: apache2
+    state: present
+    update_cache: yes
+  become: yes
+
+- name: Start and enable Apache service
+  ansible.builtin.service:
+    name: apache2
+    state: started
+    enabled: yes
+  become: yes
+
+- name: Get VM public IP address
+  ansible.builtin.uri:
+    url: http://ifconfig.co
+    return_content: yes
+  register: public_ip_result
+  delegate_to: localhost
+  become: no # This is the crucial change
+
+- name: Get VM private IP address
+  ansible.builtin.shell:
+    cmd: hostname -I | awk '{print $1}'
+  register: private_ip_result
+
+- name: Create index.html file with IPs
+  ansible.builtin.template:
+    src: index.html.j2
+    dest: /var/www/html/index.html
+  become: yes
+  vars:
+    public_ip: "{{ public_ip_result.content }}"
+    private_ip: "{{ private_ip_result.stdout }}"
